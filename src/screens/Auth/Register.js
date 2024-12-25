@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, Button, Platform, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TextInput, Button, TouchableOpacity, Platform } from 'react-native';
 import { useAuthContext } from '../../contexts/AuthContext';
 
-const initialState = { email: "", password: "" };
+const initialState = { fullName: "", email: "", password: "" };
 
-export default function Login({ navigation }) {
+export default function Register({ navigation }) {
     const { dispatch } = useAuthContext();
     const [state, setState] = useState(initialState);
 
@@ -12,19 +12,26 @@ export default function Login({ navigation }) {
         setState(s => ({ ...s, [name]: val }));
     };
 
-    const handleLogin = () => {
-        const { email, password } = state;
+    const handleRegister = () => {
+        const { fullName, email, password } = state;
+        console.log(fullName);
         console.log(email);
         console.log(password);
-        dispatch({ type: "LOGIN" });
+        dispatch({ type: "LOGIN" }); // Adjust this according to your context
     };
 
     return (
         <View style={styles.container}>
-            <Text style={styles.h1}>Login</Text>
+            <Text style={styles.h1}>Register</Text>
             {/* <Text style={styles.h4}>{Platform.OS}</Text>
             <Text style={styles.h4}>{Platform.Version}</Text>
             <Text style={styles.h4}>{Platform.isPad ? "This is a pad" : "Not a pad"}</Text> */}
+            <TextInput
+                style={styles.formControl}
+                placeholder='Full Name'
+                placeholderTextColor={'gray'}
+                onChangeText={val => handleChange('fullName', val)}
+            />
             <TextInput
                 style={styles.formControl}
                 placeholder='Enter Your Email'
@@ -42,15 +49,13 @@ export default function Login({ navigation }) {
             />
 
             <View style={styles.buttonContainer}>
-                <Button title="Login" color='black' onPress={handleLogin} />
+                <Button title="Register" color='black' onPress={handleRegister} />
             </View>
 
             <View style={styles.footer}>
-                <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')}>
-                    <Text style={styles.footerText}>Forgot Password?</Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={() => navigation.navigate('Register')}>
-                    <Text style={styles.footerText}>Register Now</Text>
+                <Text style={styles.footerText}>Already have an account?</Text>
+                <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+                    <Text style={styles.linkText}>Login Now</Text>
                 </TouchableOpacity>
             </View>
         </View>
@@ -83,7 +88,7 @@ const styles = StyleSheet.create({
         marginBottom: 10,
         width: "100%",
         color: "#333",
-        padding: 10,
+        padding: 10, // Added padding for better input experience
         backgroundColor: '#fff', // White background for input
     },
     buttonContainer: {
@@ -92,13 +97,18 @@ const styles = StyleSheet.create({
     },
     footer: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
+        justifyContent: 'center',
         width: '100%',
         marginTop: 20,
         paddingHorizontal: 20,
     },
     footerText: {
+        color: '#333', // Darker text color
+        fontWeight: 'bold',
+    },
+    linkText: {
         color: '#007BFF', // Blue color for links
         fontWeight: 'bold',
+        marginLeft: 5,
     },
 });

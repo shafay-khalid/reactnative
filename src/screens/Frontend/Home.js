@@ -1,6 +1,6 @@
-import React from 'react'
-import { View, Text, StyleSheet, Button, Alert, TouchableOpacity } from 'react-native'
-import Icon from "react-native-vector-icons/FontAwesome5"
+import React from 'react';
+import { View, Text, StyleSheet, Button, Alert, TouchableOpacity } from 'react-native';
+import Icon from "react-native-vector-icons/FontAwesome5";
 
 export default function Home({ navigation }) {
 
@@ -23,44 +23,52 @@ export default function Home({ navigation }) {
   }
 
   return (
-    <View style={styles.flexbox}>
-      <Text style={styles.h1}>Home<Icon name='home' size={48}  /></Text>
-      <Button title='press me' color='blue' onPress={() => { navigation.navigate("About") }} />
-      <View>
-        <TouchableOpacity style={styles.button} onPress={handlePress}>
-          <Text style={styles.text}>Add todo <Icon name='plus' /> </Text>
-        </TouchableOpacity>
+    <View style={styles.container}>
+      <Text style={styles.h1}>Home</Text>
+      <Icon name='home' size={48} color="#333" style={styles.icon} />
+      <View style={styles.buttonContainer}>
+        <Button title='Press Me' color='#007BFF' onPress={() => { navigation.navigate("About") }} />
       </View>
+      <TouchableOpacity style={styles.addButton} onPress={handlePress}>
+        <Text style={styles.addButtonText}>Add Todo <Icon name='plus' size={16} /></Text>
+      </TouchableOpacity>
     </View>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
-  flexbox: {
-    justifyContent: 'center',
-    alignItems: 'ceenter',
-    backgroundColor: 'red',
+  container: {
     flex: 1,
-
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f0f8ff', // Light background color
+    padding: 16,
   },
   h1: {
-    fontSize: 48,
+    fontSize: 40,
     fontWeight: 'bold',
     textAlign: 'center',
-    color: 'black'
+    color: '#333', // Darker text color
+    marginBottom: 16,
   },
-  button: {
+  icon: {
+    marginBottom: 20,
+  },
+  buttonContainer: {
+    width: '100%',
+    marginVertical: 10,
+  },
+  addButton: {
     marginVertical: 8,
-    paddingHorizontal: 8,
+    paddingHorizontal: 16,
     paddingVertical: 12,
     backgroundColor: 'black',
     borderRadius: 4,
-    // maxWidth: 300,
-    textAlign: 'center'
+    alignItems: 'center',
   },
-  text: {
-    // fontSize:8,
+  addButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
     textAlign: 'center',
-    color: 'white'
-  }
-})
+  },
+});
