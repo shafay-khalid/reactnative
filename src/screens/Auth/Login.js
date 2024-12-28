@@ -1,30 +1,65 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, Button, Platform, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TextInput, Button, TouchableOpacity, Alert } from 'react-native';
 import { useAuthContext } from '../../contexts/AuthContext';
+import Icon from 'react-native-vector-icons/FontAwesome5';
+import axios from 'axios';
 
-const initialState = { email: "", password: "" };
+const initialState = {email: "", password: "" };
 
 export default function Login({ navigation }) {
-    const { dispatch } = useAuthContext();
+    // const { dispatch } = useAuthContext();
+    const {login} = useAuthContext();
     const [state, setState] = useState(initialState);
+    const [errors, setErrors] = useState({});
+    const [passwordVisible, setPasswordVisible] = useState(false);
 
     const handleChange = (name, val) => {
+        if (val === null || val === undefined) {
+            val = ""; // Default to an empty string if val is null or undefined
+        }
         setState(s => ({ ...s, [name]: val }));
+        setErrors(prev => ({ ...prev, [name]: '' })); // Clear error on change
+    };
+
+    const validate = () => {
+        const { email, password } = state;
+        let valid = true;
+        let newErrors = {};
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            valid = false;
+            newErrors.email = "Your email is incorrect";
+        }
+
+        if (password.length < 6) {
+            valid = false;
+            newErrors.password = "Password must be at least 6 characters";
+        }
+
+        setErrors(newErrors);
+        return valid;
     };
 
     const handleLogin = () => {
-        const { email, password } = state;
-        console.log(email);
-        console.log(password);
-        dispatch({ type: "LOGIN" });
+        if (validate()) {
+            const { email, password } = state;
+            const userData = { email, password };
+    
+            axios.post("http://192.168.100.23:5028/login", userData)
+                .then(res => {
+                    if (res.data.status === "ok") {
+                        login(email, password); // Call the login function from context
+                        Alert.alert("Login Successfully");
+                    } else {
+                        Alert.alert(JSON.stringify(res.data));
+                    }
+                }).catch(e => console.log(e));
+        }
     };
-
     return (
         <View style={styles.container}>
             <Text style={styles.h1}>Login</Text>
-            {/* <Text style={styles.h4}>{Platform.OS}</Text>
-            <Text style={styles.h4}>{Platform.Version}</Text>
-            <Text style={styles.h4}>{Platform.isPad ? "This is a pad" : "Not a pad"}</Text> */}
             <TextInput
                 style={styles.formControl}
                 placeholder='Enter Your Email'
@@ -32,21 +67,28 @@ export default function Login({ navigation }) {
                 keyboardType='email-address'
                 onChangeText={val => handleChange('email', val)}
             />
-            <TextInput
-                style={styles.formControl}
-                placeholder='Enter Your Password'
-                placeholderTextColor={'gray'}
-                keyboardType='default'
-                secureTextEntry
-                onChangeText={val => handleChange('password', val)}
-            />
+            {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
+
+            <View style={styles.passwordContainer}>
+                <TextInput
+                    style={styles.passwordInput}
+                    placeholder='Enter Your Password'
+                    placeholderTextColor={'gray'}
+                    secureTextEntry={!passwordVisible}
+                    onChangeText={val => handleChange('password', val)}
+                />
+                <TouchableOpacity onPress={() => setPasswordVisible(!passwordVisible)} style={styles.iconContainer}>
+                    <Icon name={passwordVisible ? "eye-slash" : "eye"} size={20} color="gray" />
+                </TouchableOpacity>
+            </View>
+            {errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
 
             <View style={styles.buttonContainer}>
                 <Button title="Login" color='black' onPress={handleLogin} />
             </View>
 
             <View style={styles.footer}>
-                <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')}>
+                <TouchableOpacity >
                     <Text style={styles.footerText}>Forgot Password?</Text>
                 </TouchableOpacity>
                 <TouchableOpacity onPress={() => navigation.navigate('Register')}>
@@ -71,11 +113,6 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         marginBottom: 16,
     },
-    h4: {
-        color: "#555", // Slightly lighter text color
-        fontWeight: 'bold',
-        marginBottom: 4,
-    },
     formControl: {
         borderWidth: 1,
         borderColor: "#ccc", // Light border color
@@ -85,6 +122,28 @@ const styles = StyleSheet.create({
         color: "#333",
         padding: 10,
         backgroundColor: '#fff', // White background for input
+    },
+    passwordContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        width: "100%",
+        marginBottom: 10,
+        borderWidth: 1,
+        borderColor: "#ccc", // Light border color
+        borderRadius: 4,
+        backgroundColor: '#fff', // White background for input
+    },
+    passwordInput: {
+        flex: 1,
+        color: "#333",
+        padding: 10,
+    },
+    iconContainer: {
+        padding: 10,
+    },
+    errorText: {
+        color: 'red',
+        marginBottom: 10,
     },
     buttonContainer: {
         width: "100%",
